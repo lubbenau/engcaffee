@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import OrderCard from '@/components/OrderCard'
 import toast, { Toaster } from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function AdminPage() {
   const [orders, setOrders] = useState([])
@@ -15,54 +16,35 @@ export default function AdminPage() {
   }, [])
 
   async function fetchOrders() {
-    const { data } = await supabase
-      .from('orders')
+    const { data } = await supabase.from('orders')
       .select('*, order_items(*)')
       .order('created_at', { ascending: false })
-
     setOrders(data || [])
     setLoading(false)
   }
 
   function subscribeOrders() {
-    const channel = supabase
-      .channel('admin-orders')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'orders'
-      }, payload => {
+    const channel = supabase.channel('admin-orders')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
         if (payload.eventType === 'INSERT') {
-          // Ambil order baru beserta items-nya
           fetchSingleOrder(payload.new.id)
-          toast('🔔 Pesanan baru masuk!', {
+          toast('Pesanan baru masuk!', {
             duration: 5000,
-            style: { background: '#f97316', color: '#fff', fontWeight: 'bold' }
+            style: { background: 'var(--brown-deep)', color: 'var(--cream)', fontWeight: 'bold', borderRadius: '12px' }
           })
-          // Mainkan suara notifikasi
           playNotifSound()
         }
         if (payload.eventType === 'UPDATE') {
-          setOrders(prev =>
-            prev.map(o => o.id === payload.new.id ? { ...o, ...payload.new } : o)
-          )
+          setOrders(prev => prev.map(o => o.id === payload.new.id ? { ...o, ...payload.new } : o))
         }
       })
       .subscribe()
-
     return () => supabase.removeChannel(channel)
   }
 
   async function fetchSingleOrder(orderId) {
-    const { data } = await supabase
-      .from('orders')
-      .select('*, order_items(*)')
-      .eq('id', orderId)
-      .single()
-
-    if (data) {
-      setOrders(prev => [data, ...prev])
-    }
+    const { data } = await supabase.from('orders').select('*, order_items(*)').eq('id', orderId).single()
+    if (data) setOrders(prev => [data, ...prev])
   }
 
   function playNotifSound() {
@@ -79,64 +61,61 @@ export default function AdminPage() {
   }
 
   async function updateStatus(orderId, newStatus) {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status: newStatus })
-      .eq('id', orderId)
-
-    if (!error) {
-      toast.success(`Status diupdate: ${newStatus}`)
-    }
+    await supabase.from('orders').update({ status: newStatus }).eq('id', orderId)
+    toast.success('Status diupdate!')
   }
 
   const filtered = orders.filter(o => o.status === activeTab)
-
-  const countByStatus = (status) => orders.filter(o => o.status === status).length
+  const countByStatus = (s) => orders.filter(o => o.status === s).length
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen">
-      <p className="text-gray-500">Memuat data...</p>
+    <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--cream)' }}>
+      <p style={{ color: 'var(--brown)' }}>Memuat data...</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen" style={{ background: 'var(--cream)' }}>
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div className="bg-white shadow-sm sticky top-0 z-10">
+      <div style={{ background: 'var(--brown-deep)' }} className="sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-orange-500">🍽️ Admin Dashboard</h1>
-            <p className="text-sm text-gray-500">Kelola pesanan masuk</p>
+            <h1 className="font-serif text-xl font-bold" style={{ color: 'var(--cream)' }}>EngCaffee</h1>
+            <p className="text-xs tracking-widest uppercase mt-0.5" style={{ color: 'var(--brown-light)' }}>Admin Dashboard</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-400">Total hari ini</p>
-            <p className="font-bold text-gray-700">{orders.length} pesanan</p>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-xs" style={{ color: 'var(--brown-light)' }}>Total hari ini</p>
+              <p className="font-bold" style={{ color: 'var(--cream)' }}>{orders.length} pesanan</p>
+            </div>
+            <Link href="/admin/menu"
+              className="text-xs font-bold px-3 py-1.5 rounded-xl border"
+              style={{ borderColor: 'var(--brown-light)', color: 'var(--brown-light)' }}>
+              Kelola Menu
+            </Link>
           </div>
         </div>
 
-        {/* Tab Status */}
+        {/* Tabs */}
         <div className="max-w-4xl mx-auto px-4 pb-3 flex gap-2">
           {[
-            { key: 'pending', label: '⏳ Pending' },
-            { key: 'confirmed', label: '✅ Dikonfirmasi' },
-            { key: 'done', label: '🎉 Selesai' },
+            { key: 'pending', label: 'Pending' },
+            { key: 'confirmed', label: 'Diproses' },
+            { key: 'done', label: 'Selesai' },
           ].map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 transition-colors ${
-                activeTab === tab.key
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-600'
-              }`}
-            >
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+              className="px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
+              style={activeTab === tab.key
+                ? { background: 'var(--brown-light)', color: 'var(--brown-deep)' }
+                : { background: 'rgba(255,255,255,0.1)', color: 'var(--brown-light)' }}>
               {tab.label}
               {countByStatus(tab.key) > 0 && (
-                <span className={`text-xs rounded-full px-1.5 py-0.5 ${
-                  activeTab === tab.key ? 'bg-white text-orange-500' : 'bg-gray-300 text-gray-600'
-                }`}>
+                <span className="text-xs rounded-full px-1.5 py-0.5"
+                  style={activeTab === tab.key
+                    ? { background: 'var(--brown-deep)', color: 'var(--cream)' }
+                    : { background: 'rgba(255,255,255,0.15)', color: 'var(--cream)' }}>
                   {countByStatus(tab.key)}
                 </span>
               )}
@@ -145,21 +124,17 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Order List */}
+      {/* Orders */}
       <div className="max-w-4xl mx-auto px-4 py-4">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <p className="text-4xl mb-3">📭</p>
+          <div className="text-center py-16" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-4xl mb-3">☕</p>
             <p>Tidak ada pesanan {activeTab}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filtered.map(order => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                onUpdateStatus={updateStatus}
-              />
+              <OrderCard key={order.id} order={order} onUpdateStatus={updateStatus} />
             ))}
           </div>
         )}

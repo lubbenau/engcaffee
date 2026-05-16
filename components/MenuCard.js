@@ -7,80 +7,72 @@ export default function MenuCard({ menu, onAddToCart }) {
 
   function handleAdd() {
     if (menu.has_options && !selectedOption) {
-      alert('Pilih opsi terlebih dahulu!')
+      alert('Pilih tingkat kepedasan dulu!')
       return
     }
-    onAddToCart({
-      id: menu.id,
-      name: menu.name,
-      price: menu.price,
-      quantity,
-      selectedOption: selectedOption || null
-    })
+    onAddToCart({ id: menu.id, name: menu.name, price: menu.price, quantity, selectedOption: selectedOption || null })
     setQuantity(1)
     setSelectedOption('')
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4">
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-800">{menu.name}</h3>
-          <p className="text-sm text-gray-500 mt-0.5">{menu.description}</p>
-          <p className="text-orange-500 font-bold mt-1">
-            Rp {menu.price.toLocaleString('id-ID')}
-          </p>
-        </div>
-        {menu.image_url && (
-          <img
-            src={menu.image_url}
-            alt={menu.name}
-            className="w-20 h-20 object-cover rounded-xl ml-3"
-          />
+    <div className="rounded-2xl overflow-hidden border" style={{ background: 'var(--white)', borderColor: 'var(--cream2)' }}>
+      <div className="relative">
+        {menu.image_url ? (
+          <img src={menu.image_url} alt={menu.name} className="w-full h-32 object-cover" />
+        ) : (
+          <div className="w-full h-32 flex items-center justify-center text-5xl"
+            style={{ background: 'var(--cream2)' }}>
+            {menu.categories?.name === 'Minuman' ? '🥤' :
+             menu.categories?.name === 'Cemilan' ? '🍟' : '🍽️'}
+          </div>
         )}
+        <div className="absolute top-2 right-2 text-xs font-bold px-2 py-0.5 rounded-full"
+          style={{ background: 'var(--white)', color: 'var(--brown)' }}>
+          Rp {menu.price.toLocaleString('id-ID')}
+        </div>
       </div>
 
-      {/* Opsi (pedas/sedang/tidak pedas) */}
-      {menu.has_options && menu.menu_options?.length > 0 && (
-        <div className="mt-3">
-          <p className="text-xs text-gray-500 mb-1.5">Pilih opsi:</p>
-          <div className="flex gap-2 flex-wrap">
-            {menu.menu_options.map(opt => (
-              <button
-                key={opt.id}
-                onClick={() => setSelectedOption(opt.option_name)}
-                className={`px-3 py-1 rounded-full text-xs border transition-colors ${
-                  selectedOption === opt.option_name
-                    ? 'bg-orange-500 text-white border-orange-500'
-                    : 'border-gray-300 text-gray-600'
-                }`}
-              >
-                {opt.option_name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="p-3">
+        <h3 className="font-bold text-sm" style={{ color: 'var(--text)' }}>{menu.name}</h3>
+        {menu.description && (
+          <p className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--text-muted)' }}>{menu.description}</p>
+        )}
 
-      {/* Quantity & Add Button */}
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setQuantity(q => Math.max(1, q - 1))}
-            className="w-7 h-7 rounded-full border border-gray-300 text-gray-600 flex items-center justify-center"
-          >−</button>
-          <span className="font-medium w-4 text-center">{quantity}</span>
-          <button
-            onClick={() => setQuantity(q => q + 1)}
-            className="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center"
-          >+</button>
+        {menu.has_options && menu.menu_options?.length > 0 && (
+          <div className="mt-2">
+            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Kepedasan:</p>
+            <div className="flex gap-1 flex-wrap">
+              {menu.menu_options.map(opt => (
+                <button key={opt.id} onClick={() => setSelectedOption(opt.option_name)}
+                  className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-all border"
+                  style={selectedOption === opt.option_name
+                    ? { background: 'var(--brown-dark)', color: 'var(--cream)', borderColor: 'var(--brown-dark)' }
+                    : { background: 'transparent', color: 'var(--brown)', borderColor: 'var(--brown-light)' }}>
+                  {opt.option_name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center gap-2 rounded-xl px-2 py-1"
+            style={{ background: 'var(--cream)' }}>
+            <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
+              className="w-5 h-5 flex items-center justify-center font-bold"
+              style={{ color: 'var(--brown-dark)' }}>−</button>
+            <span className="text-sm font-bold w-4 text-center" style={{ color: 'var(--text)' }}>{quantity}</span>
+            <button onClick={() => setQuantity(q => q + 1)}
+              className="w-5 h-5 flex items-center justify-center font-bold"
+              style={{ color: 'var(--brown-dark)' }}>+</button>
+          </div>
+          <button onClick={handleAdd}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+            style={{ background: 'var(--brown-dark)', color: 'var(--cream)' }}>
+            + Tambah
+          </button>
         </div>
-        <button
-          onClick={handleAdd}
-          className="bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-medium"
-        >
-          + Tambah
-        </button>
       </div>
     </div>
   )
