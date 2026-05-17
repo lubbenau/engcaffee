@@ -1,18 +1,6 @@
 'use client'
 import { useState } from 'react'
 
-const C = {
-  cream: '#F5F0E8',
-  cream2: '#EDE5D8',
-  brownLight: '#C4A882',
-  brown: '#8B6347',
-  brownDark: '#5C3D2E',
-  brownDeep: '#3B2314',
-  text: '#2C1A0E',
-  textMuted: '#8B7355',
-  white: '#FDFAF6',
-}
-
 export default function MenuCard({ menu, onAddToCart }) {
   const [quantity, setQuantity] = useState(1)
   const [selectedOption, setSelectedOption] = useState('')
@@ -28,39 +16,38 @@ export default function MenuCard({ menu, onAddToCart }) {
   }
 
   return (
-    <div style={{ background: C.white, borderRadius: '16px', border: `0.5px solid ${C.cream2}`, overflow: 'hidden' }}>
-      {/* Image */}
-      {menu.image_url ? (
-        <img src={menu.image_url} alt={menu.name} style={{ width: '100%', height: '110px', objectFit: 'cover' }} />
-      ) : (
-        <div style={{ width: '100%', height: '110px', background: C.cream2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px' }}>
-          {menu.categories?.name === 'Minuman' ? '🥤' : menu.categories?.name === 'Cemilan' ? '🍟' : '🍽️'}
-        </div>
-      )}
-
-      {/* Info */}
-      <div style={{ padding: '10px' }}>
-        <p style={{ fontWeight: '700', fontSize: '13px', color: C.text }}>{menu.name}</p>
-        {menu.description && (
-          <p style={{ fontSize: '11px', color: C.textMuted, marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{menu.description}</p>
+    <div className="glass rounded-[2.5rem] p-3 flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+      {/* Container Gambar */}
+      <div className="relative h-36 w-full rounded-[2rem] overflow-hidden bg-[#EDE5D8] group">
+        {menu.image_url ? (
+          <img src={menu.image_url} alt={menu.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-4xl">
+            {menu.categories?.name === 'Minuman' ? '🥤' : '🍽️'}
+          </div>
         )}
-        <p style={{ fontWeight: '700', fontSize: '13px', color: C.brown, marginTop: '4px' }}>
+        <div className="absolute top-2 right-2 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full shadow-sm text-[11px] font-bold text-[#8B6347]">
           Rp {menu.price.toLocaleString('id-ID')}
-        </p>
+        </div>
+      </div>
 
-        {/* Opsi */}
-        {menu.has_options && menu.menu_options?.length > 0 && (
-          <div style={{ marginTop: '8px' }}>
-            <p style={{ fontSize: '10px', color: C.textMuted, marginBottom: '4px' }}>Kepedasan:</p>
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+      <div className="mt-3 px-1">
+        <h3 className="font-extrabold text-sm text-[#2C1A0E] line-clamp-1">{menu.name}</h3>
+        <p className="text-[10px] text-[#8B7355] line-clamp-1 mt-0.5 italic">{menu.description}</p>
+
+        {/* Opsi Kepedasan ala Bento */}
+        {menu.has_options && (
+          <div className="mt-3 space-y-1.5">
+            <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
               {menu.menu_options.map(opt => (
-                <button key={opt.id} onClick={() => setSelectedOption(opt.option_name)}
-                  style={{
-                    padding: '3px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '600', cursor: 'pointer',
-                    border: `0.5px solid ${selectedOption === opt.option_name ? C.brownDark : C.brownLight}`,
-                    background: selectedOption === opt.option_name ? C.brownDark : 'transparent',
-                    color: selectedOption === opt.option_name ? C.cream : C.brown,
-                  }}>
+                <button 
+                  key={opt.id} 
+                  onClick={() => setSelectedOption(opt.option_name)}
+                  className={`px-3 py-1 rounded-full text-[9px] font-bold border transition-all whitespace-nowrap
+                    ${selectedOption === opt.option_name 
+                      ? 'bg-[#5C3D2E] text-white border-[#5C3D2E]' 
+                      : 'bg-white/50 text-[#8B6347] border-[#C4A882]/30'}`}
+                >
                   {opt.option_name}
                 </button>
               ))}
@@ -68,18 +55,18 @@ export default function MenuCard({ menu, onAddToCart }) {
           </div>
         )}
 
-        {/* Qty & Tambah */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: C.cream, borderRadius: '10px', padding: '4px 10px' }}>
-            <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '16px', color: C.brownDark, lineHeight: 1 }}>−</button>
-            <span style={{ fontWeight: '700', fontSize: '13px', color: C.text, minWidth: '14px', textAlign: 'center' }}>{quantity}</span>
-            <button onClick={() => setQuantity(q => q + 1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '16px', color: C.brownDark, lineHeight: 1 }}>+</button>
+        {/* Counter & Button */}
+        <div className="flex items-center justify-between mt-3 gap-2">
+          <div className="flex items-center bg-[#EDE5D8]/50 rounded-2xl p-1">
+            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-7 h-7 flex items-center justify-center text-[#5C3D2E] font-bold">-</button>
+            <span className="text-xs font-bold w-4 text-center">{quantity}</span>
+            <button onClick={() => setQuantity(q => q + 1)} className="w-7 h-7 flex items-center justify-center text-[#5C3D2E] font-bold">+</button>
           </div>
-          <button onClick={handleAdd}
-            style={{ background: C.brownDark, color: C.cream, padding: '7px 14px', borderRadius: '10px', fontSize: '11px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
-            + Tambah
+          <button 
+            onClick={handleAdd}
+            className="flex-1 bg-[#3B2314] text-[#F5F0E8] py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider shadow-lg active:scale-95 transition-all"
+          >
+            Tambah +
           </button>
         </div>
       </div>

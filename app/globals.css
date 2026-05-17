@@ -1,3 +1,4 @@
+/* app/globals.css */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -5,7 +6,7 @@
 @tailwind utilities;
 
 :root {
-  --cream: #F5F0E8;
+  --cream: #FDFBF9;
   --cream2: #EDE5D8;
   --brown-light: #C4A882;
   --brown: #8B6347;
@@ -13,24 +14,28 @@
   --brown-deep: #3B2314;
   --text: #2C1A0E;
   --text-muted: #8B7355;
-  --white: #FDFAF6;
 }
 
-* {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.font-serif {
-  font-family: 'Playfair Display', serif;
-}
+* { font-family: 'Plus Jakarta Sans', sans-serif; }
+.font-serif { font-family: 'Playfair Display', serif; }
 
 body {
-  background-color: var(--cream);
+  background: radial-gradient(circle at top right, #F5F0E8, #FDFAF6);
+  color: var(--text);
+  min-height: 100vh;
 }
 
-@media print {
-  body {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+/* Glassmorphism Class */
+.glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-dark {
+  background: rgba(59, 35, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

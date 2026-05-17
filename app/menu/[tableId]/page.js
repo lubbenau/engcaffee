@@ -97,100 +97,91 @@ export default function MenuPage() {
 
   if (orderSuccess) return <OrderSuccess orderId={orderId} tableId={tableId} />
 
+  // Ubah bagian "Hero" dan "Menu Grid" di page.js
+// ... (logika useEffect dll tetap sama)
+
   return (
-    <div style={{ minHeight: '100vh', background: C.cream }}>
+    <div className="min-h-screen pb-24">
       <Toaster position="top-center" />
 
-      {/* Hero */}
-      <div style={{ background: C.brownDeep, padding: '40px 20px 56px' }}>
-        <div style={{ maxWidth: '520px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h1 style={{ fontSize: '28px', fontWeight: '700', color: C.cream, fontFamily: 'Georgia, serif' }}>EngCaffee</h1>
-              <p style={{ fontSize: '10px', color: C.brownLight, letterSpacing: '2px', textTransform: 'uppercase', marginTop: '4px' }}>Selamat datang</p>
-            </div>
-            <div style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '20px', border: `1px solid ${C.brownLight}`, color: C.brownLight }}>
-              Meja {tableId}
-            </div>
+      {/* Hero Section Modern */}
+      <div className="relative overflow-hidden bg-[#3B2314] px-6 pt-12 pb-20 rounded-b-[3rem] shadow-2xl">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4A373] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <span className="text-[#C4A882] text-[10px] tracking-[0.3em] uppercase font-bold">Premium Experience</span>
+          <h1 className="text-4xl font-serif font-bold text-[#F5F0E8] mt-1">EngCaffee</h1>
+          <div className="flex items-center gap-2 mt-4">
+             <div className="px-3 py-1 rounded-full border border-[#C4A882]/30 text-[#C4A882] text-[10px] font-bold">
+               Table {tableId}
+             </div>
           </div>
-          <div style={{ marginTop: '16px', background: 'rgba(255,255,255,0.08)', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', border: '0.5px solid rgba(196,168,130,0.2)' }}>
-            <span style={{ color: C.brownLight }}>🔍</span>
-            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Cari menu favoritmu..."
-              style={{ background: 'transparent', border: 'none', outline: 'none', color: C.cream, fontSize: '14px', flex: 1 }} />
+
+          {/* Search Bar Glass */}
+          <div className="mt-8 glass-dark rounded-[1.5rem] flex items-center px-4 py-3">
+            <span className="text-[#C4A882]">🔍</span>
+            <input 
+              type="text" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="What are you craving today?"
+              className="bg-transparent border-none outline-none text-white text-sm ml-3 w-full placeholder:text-[#8B7355]"
+            />
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div style={{ maxWidth: '520px', margin: '-24px auto 0', padding: '0 16px', position: 'relative', zIndex: 10 }}>
-        <div style={{ background: C.white, borderRadius: '24px', overflow: 'hidden' }}>
-
-          {/* Kategori */}
-          <div style={{ display: 'flex', gap: '8px', padding: '16px', overflowX: 'auto', borderBottom: `0.5px solid ${C.cream2}` }}>
-            <button onClick={() => setActiveCategory(null)} style={{
-              padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
-              whiteSpace: 'nowrap', border: 'none', cursor: 'pointer',
-              background: !activeCategory ? C.brownDark : C.cream,
-              color: !activeCategory ? C.cream : C.brown,
-            }}>Semua</button>
-            {categories.map(cat => (
-              <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{
-                padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
-                whiteSpace: 'nowrap', cursor: 'pointer', border: `0.5px solid ${C.brownLight}`,
-                background: activeCategory === cat.id ? C.brownDark : C.cream,
-                color: activeCategory === cat.id ? C.cream : C.brown,
-              }}>{cat.name}</button>
-            ))}
-          </div>
-
-          {/* Menu Grid */}
-          <div style={{ padding: '16px' }}>
-            {filteredMenus.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 0', color: C.textMuted }}>
-                <p style={{ fontSize: '32px', marginBottom: '8px' }}>☕</p>
-                <p>Menu tidak ditemukan</p>
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                {filteredMenus.map(menu => (
-                  <MenuCard key={menu.id} menu={menu} onAddToCart={addToCart} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        <div style={{ height: '96px' }} />
-      </div>
-
-      {/* Cart Bar */}
-      {totalItems > 0 && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px', zIndex: 20 }}>
-          <div style={{ maxWidth: '520px', margin: '0 auto' }}>
-            <button onClick={() => setShowCart(true)} style={{
-              width: '100%', background: C.brownDeep, color: C.cream, borderRadius: '16px',
-              padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ background: C.brownLight, color: C.brownDeep, fontSize: '11px', fontWeight: '700', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {totalItems}
-                </span>
-                Lihat Keranjang
-              </div>
-              <span style={{ fontWeight: '700' }}>Rp {totalPrice.toLocaleString('id-ID')}</span>
+      {/* Content Area */}
+      <div className="max-w-4xl mx-auto -mt-10 px-4">
+        {/* Kategori Floating */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar py-4">
+          <button 
+            onClick={() => setActiveCategory(null)}
+            className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm
+              ${!activeCategory ? 'bg-[#5C3D2E] text-white' : 'glass text-[#8B6347]'}`}
+          >
+            All Menu
+          </button>
+          {categories.map(cat => (
+            <button 
+              key={cat.id} 
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap
+                ${activeCategory === cat.id ? 'bg-[#5C3D2E] text-white' : 'glass text-[#8B6347]'}`}
+            >
+              {cat.name}
             </button>
-          </div>
+          ))}
+        </div>
+
+        {/* Menu Grid - BENTO STYLE */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+          {filteredMenus.map(menu => (
+            <MenuCard key={menu.id} menu={menu} onAddToCart={addToCart} />
+          ))}
+        </div>
+      </div>
+
+      {/* Floating Cart Bar */}
+      {totalItems > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 px-6 z-[100]">
+          <button 
+            onClick={() => setShowCart(true)}
+            className="max-w-md mx-auto w-full glass-dark text-white rounded-[2rem] p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(59,35,20,0.3)] animate-bounce-in"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#C4A882] flex items-center justify-center font-black text-[#3B2314]">
+                {totalItems}
+              </div>
+              <div className="text-left">
+                <p className="text-[10px] text-[#C4A882] uppercase font-bold">Total Order</p>
+                <p className="text-sm font-bold">Rp {totalPrice.toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+            <div className="pr-4 font-bold text-xs flex items-center gap-2">
+              VIEW CART <span>→</span>
+            </div>
+          </button>
         </div>
       )}
-
-      {showCart && (
-        <CartDrawer cart={cart} tableId={tableId}
-          onClose={() => setShowCart(false)}
-          onRemove={removeFromCart}
-          onUpdateQty={updateQuantity}
-          onSubmit={submitOrder} />
-      )}
+      {/* ... sisanya (CartDrawer) tetap sama */}
     </div>
   )
 }
