@@ -5,6 +5,18 @@ import OrderCard from '@/components/OrderCard'
 import toast, { Toaster } from 'react-hot-toast'
 import Link from 'next/link'
 
+const C = {
+  cream: '#F5F0E8',
+  cream2: '#EDE5D8',
+  brownLight: '#C4A882',
+  brown: '#8B6347',
+  brownDark: '#5C3D2E',
+  brownDeep: '#3B2314',
+  text: '#2C1A0E',
+  textMuted: '#8B7355',
+  white: '#FDFAF6',
+}
+
 export default function AdminPage() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -12,7 +24,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchOrders()
-    subscribeOrders()
+    const unsub = subscribeOrders()
+    return () => { if (unsub) unsub() }
   }, [])
 
   async function fetchOrders() {
@@ -24,13 +37,14 @@ export default function AdminPage() {
   }
 
   function subscribeOrders() {
-    const channel = supabase.channel('admin-orders')
+    const channel = supabase
+      .channel('admin-orders-' + Date.now())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
         if (payload.eventType === 'INSERT') {
           fetchSingleOrder(payload.new.id)
-          toast('Pesanan baru masuk!', {
+          toast('🔔 Pesanan baru masuk!', {
             duration: 5000,
-            style: { background: 'var(--brown-deep)', color: 'var(--cream)', fontWeight: 'bold', borderRadius: '12px' }
+            style: { background: C.brownDeep, color: C.cream, fontWeight: 'bold', borderRadius: '12px' }
           })
           playNotifSound()
         }
@@ -49,15 +63,13 @@ export default function AdminPage() {
 
   function playNotifSound() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const oscillator = ctx.createOscillator()
-    const gainNode = ctx.createGain()
-    oscillator.connect(gainNode)
-    gainNode.connect(ctx.destination)
-    oscillator.frequency.value = 880
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
-    oscillator.start(ctx.currentTime)
-    oscillator.stop(ctx.currentTime + 0.5)
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.connect(g); g.connect(ctx.destination)
+    o.frequency.value = 880
+    g.gain.setValueAtTime(0.3, ctx.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.5)
   }
 
   async function updateStatus(orderId, newStatus) {
@@ -69,53 +81,56 @@ export default function AdminPage() {
   const countByStatus = (s) => orders.filter(o => o.status === s).length
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen" style={{ background: 'var(--cream)' }}>
-      <p style={{ color: 'var(--brown)' }}>Memuat data...</p>
+    <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: C.brown }}>Memuat data...</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--cream)' }}>
+    <div style={{ minHeight: '100vh', background: C.cream }}>
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div style={{ background: 'var(--brown-deep)' }} className="sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div style={{ background: C.brownDeep, position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 className="font-serif text-xl font-bold" style={{ color: 'var(--cream)' }}>EngCaffee</h1>
-            <p className="text-xs tracking-widest uppercase mt-0.5" style={{ color: 'var(--brown-light)' }}>Admin Dashboard</p>
+            <h1 style={{ fontSize: '22px', fontWeight: '700', color: C.cream, fontFamily: 'Georgia, serif' }}>EngCaffee</h1>
+            <p style={{ fontSize: '10px', color: C.brownLight, letterSpacing: '2px', textTransform: 'uppercase', marginTop: '2px' }}>Admin Dashboard</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-xs" style={{ color: 'var(--brown-light)' }}>Total hari ini</p>
-              <p className="font-bold" style={{ color: 'var(--cream)' }}>{orders.length} pesanan</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: '11px', color: C.brownLight }}>Total hari ini</p>
+              <p style={{ fontWeight: '700', color: C.cream, fontSize: '16px' }}>{orders.length} pesanan</p>
             </div>
-            <Link href="/admin/menu"
-              className="text-xs font-bold px-3 py-1.5 rounded-xl border"
-              style={{ borderColor: 'var(--brown-light)', color: 'var(--brown-light)' }}>
+            <Link href="/admin/menu" style={{
+              fontSize: '12px', fontWeight: '700', padding: '8px 14px', borderRadius: '12px',
+              border: `1px solid ${C.brownLight}`, color: C.brownLight, textDecoration: 'none'
+            }}>
               Kelola Menu
             </Link>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="max-w-4xl mx-auto px-4 pb-3 flex gap-2">
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 20px 12px', display: 'flex', gap: '8px' }}>
           {[
             { key: 'pending', label: 'Pending' },
             { key: 'confirmed', label: 'Diproses' },
             { key: 'done', label: 'Selesai' },
           ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className="px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all"
-              style={activeTab === tab.key
-                ? { background: 'var(--brown-light)', color: 'var(--brown-deep)' }
-                : { background: 'rgba(255,255,255,0.1)', color: 'var(--brown-light)' }}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+              padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
+              border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+              background: activeTab === tab.key ? C.brownLight : 'rgba(255,255,255,0.1)',
+              color: activeTab === tab.key ? C.brownDeep : C.brownLight,
+            }}>
               {tab.label}
               {countByStatus(tab.key) > 0 && (
-                <span className="text-xs rounded-full px-1.5 py-0.5"
-                  style={activeTab === tab.key
-                    ? { background: 'var(--brown-deep)', color: 'var(--cream)' }
-                    : { background: 'rgba(255,255,255,0.15)', color: 'var(--cream)' }}>
+                <span style={{
+                  fontSize: '10px', padding: '1px 6px', borderRadius: '10px',
+                  background: activeTab === tab.key ? C.brownDeep : 'rgba(255,255,255,0.2)',
+                  color: activeTab === tab.key ? C.cream : C.cream,
+                }}>
                   {countByStatus(tab.key)}
                 </span>
               )}
@@ -125,14 +140,14 @@ export default function AdminPage() {
       </div>
 
       {/* Orders */}
-      <div className="max-w-4xl mx-auto px-4 py-4">
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
         {filtered.length === 0 ? (
-          <div className="text-center py-16" style={{ color: 'var(--text-muted)' }}>
-            <p className="text-4xl mb-3">☕</p>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: C.textMuted }}>
+            <p style={{ fontSize: '40px', marginBottom: '12px' }}>☕</p>
             <p>Tidak ada pesanan {activeTab}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '16px' }}>
             {filtered.map(order => (
               <OrderCard key={order.id} order={order} onUpdateStatus={updateStatus} />
             ))}

@@ -1,5 +1,17 @@
 'use client'
 
+const C = {
+  cream: '#F5F0E8',
+  cream2: '#EDE5D8',
+  brownLight: '#C4A882',
+  brown: '#8B6347',
+  brownDark: '#5C3D2E',
+  brownDeep: '#3B2314',
+  text: '#2C1A0E',
+  textMuted: '#8B7355',
+  white: '#FDFAF6',
+}
+
 export default function OrderCard({ order, onUpdateStatus }) {
   const timeAgo = (dateStr) => {
     const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000)
@@ -8,78 +20,74 @@ export default function OrderCard({ order, onUpdateStatus }) {
     return `${Math.floor(diff / 3600)} jam lalu`
   }
 
-  const statusConfig = {
-    pending: { label: 'Pending', borderColor: '#8B6347' },
-    confirmed: { label: 'Diproses', borderColor: '#4A7C59' },
-    done: { label: 'Selesai', borderColor: '#C4A882' },
-  }
-  const cfg = statusConfig[order.status]
+  const borderColor = order.status === 'pending' ? C.brown : order.status === 'confirmed' ? '#4A7C59' : C.brownLight
+  const statusLabel = order.status === 'pending' ? 'Pending' : order.status === 'confirmed' ? 'Diproses' : 'Selesai'
 
   return (
-    <div className="rounded-2xl overflow-hidden border"
-      style={{ background: 'var(--white)', borderColor: 'var(--cream2)', borderLeft: `3px solid ${cfg.borderColor}` }}>
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-3">
+    <div style={{
+      background: C.white, borderRadius: '16px',
+      border: `0.5px solid ${C.cream2}`, borderLeft: `4px solid ${borderColor}`,
+      overflow: 'hidden'
+    }}>
+      <div style={{ padding: '16px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
           <div>
-            <p className="text-lg font-bold" style={{ color: 'var(--text)' }}>Meja {order.table_number}</p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{timeAgo(order.created_at)} · #{order.id}</p>
+            <p style={{ fontSize: '18px', fontWeight: '700', color: C.text }}>Meja {order.table_number}</p>
+            <p style={{ fontSize: '11px', color: C.textMuted, marginTop: '2px' }}>{timeAgo(order.created_at)} · #{order.id}</p>
           </div>
-          <span className="text-xs font-bold px-3 py-1 rounded-full border"
-            style={{ background: 'var(--cream)', color: 'var(--brown)', borderColor: 'var(--brown-light)' }}>
-            {cfg.label}
+          <span style={{
+            fontSize: '11px', fontWeight: '700', padding: '4px 12px', borderRadius: '20px',
+            background: C.cream, color: C.brown, border: `0.5px solid ${C.brownLight}`
+          }}>
+            {statusLabel}
           </span>
         </div>
 
-        <div className="space-y-1.5 rounded-xl p-3 mb-3" style={{ background: 'var(--cream)' }}>
+        {/* Items */}
+        <div style={{ background: C.cream, borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
           {order.order_items?.map(item => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <span style={{ color: 'var(--text)' }}>
-                <span className="font-bold">{item.quantity}×</span> {item.menu_name}
+            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '3px 0' }}>
+              <span style={{ color: C.text }}>
+                <span style={{ fontWeight: '700' }}>{item.quantity}×</span> {item.menu_name}
                 {item.selected_option && (
-                  <span className="text-xs ml-1" style={{ color: 'var(--brown)' }}>({item.selected_option})</span>
+                  <span style={{ color: C.brown, fontSize: '11px', marginLeft: '4px' }}>({item.selected_option})</span>
                 )}
               </span>
-              <span className="font-medium" style={{ color: 'var(--text-muted)' }}>
-                Rp {item.subtotal.toLocaleString('id-ID')}
-              </span>
+              <span style={{ color: C.textMuted, fontWeight: '500' }}>Rp {item.subtotal.toLocaleString('id-ID')}</span>
             </div>
           ))}
         </div>
 
+        {/* Catatan */}
         {order.customer_note && (
-          <div className="rounded-xl px-3 py-2 mb-3 flex gap-2"
-            style={{ background: '#FDF6EC', border: '0.5px solid var(--brown-light)' }}>
-            <span>📝</span>
-            <p className="text-xs" style={{ color: 'var(--brown-dark)' }}>{order.customer_note}</p>
+          <div style={{ background: '#FDF6EC', borderRadius: '10px', padding: '8px 12px', marginBottom: '12px', border: `0.5px solid ${C.brownLight}` }}>
+            <p style={{ fontSize: '12px', color: C.brownDark }}>📝 {order.customer_note}</p>
           </div>
         )}
 
-        <div className="flex justify-between items-center pt-2"
-          style={{ borderTop: '0.5px solid var(--cream2)' }}>
-          <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Total</span>
-          <span className="font-bold" style={{ color: 'var(--brown-dark)' }}>
-            Rp {order.total_price.toLocaleString('id-ID')}
-          </span>
+        {/* Total */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px', borderTop: `0.5px solid ${C.cream2}` }}>
+          <span style={{ fontSize: '13px', color: C.textMuted }}>Total</span>
+          <span style={{ fontWeight: '700', fontSize: '15px', color: C.brownDark }}>Rp {order.total_price.toLocaleString('id-ID')}</span>
         </div>
       </div>
 
+      {/* Action Button */}
       {order.status === 'pending' && (
         <button onClick={() => onUpdateStatus(order.id, 'confirmed')}
-          className="w-full py-3 text-sm font-bold transition-colors"
-          style={{ background: 'var(--brown-dark)', color: 'var(--cream)' }}>
-          Konfirmasi Pesanan
+          style={{ width: '100%', padding: '12px', background: C.brownDark, color: C.cream, fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+          ✓ Konfirmasi Pesanan
         </button>
       )}
       {order.status === 'confirmed' && (
         <button onClick={() => onUpdateStatus(order.id, 'done')}
-          className="w-full py-3 text-sm font-bold transition-colors"
-          style={{ background: '#4A7C59', color: 'var(--white)' }}>
-          Tandai Selesai
+          style={{ width: '100%', padding: '12px', background: '#4A7C59', color: C.white, fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+          ✅ Tandai Selesai
         </button>
       )}
       {order.status === 'done' && (
-        <div className="w-full py-3 text-sm text-center font-medium"
-          style={{ background: 'var(--cream)', color: 'var(--text-muted)' }}>
+        <div style={{ width: '100%', padding: '12px', background: C.cream, color: C.textMuted, fontSize: '13px', textAlign: 'center' }}>
           Pesanan selesai
         </div>
       )}
