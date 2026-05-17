@@ -7,6 +7,18 @@ import CartDrawer from '@/components/CartDrawer'
 import OrderSuccess from '@/components/OrderSuccess'
 import toast, { Toaster } from 'react-hot-toast'
 
+const C = {
+  cream: '#F5F0E8',
+  cream2: '#EDE5D8',
+  brownLight: '#C4A882',
+  brown: '#8B6347',
+  brownDark: '#5C3D2E',
+  brownDeep: '#3B2314',
+  text: '#2C1A0E',
+  textMuted: '#8B7355',
+  white: '#FDFAF6',
+}
+
 export default function MenuPage() {
   const { tableId } = useParams()
   const [categories, setCategories] = useState([])
@@ -39,7 +51,7 @@ export default function MenuPage() {
       return [...prev, { ...item, cartKey: key }]
     })
     toast.success(`${item.name} ditambahkan!`, {
-      style: { borderRadius: '12px', background: '#3B2314', color: '#F5F0E8', fontSize: '13px' }
+      style: { borderRadius: '12px', background: C.brownDeep, color: C.cream, fontSize: '13px' }
     })
   }
 
@@ -77,81 +89,70 @@ export default function MenuPage() {
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-screen"
-      style={{ background: 'var(--cream)' }}>
-      <div className="text-4xl mb-3">☕</div>
-      <p className="text-sm font-semibold" style={{ color: 'var(--brown)' }}>Menyeduh menu...</p>
+    <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ fontSize: '40px', marginBottom: '12px' }}>☕</div>
+      <p style={{ color: C.brown, fontWeight: '600' }}>Menyeduh menu...</p>
     </div>
   )
 
   if (orderSuccess) return <OrderSuccess orderId={orderId} tableId={tableId} />
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--cream)' }}>
+    <div style={{ minHeight: '100vh', background: C.cream }}>
       <Toaster position="top-center" />
 
       {/* Hero */}
-      <div style={{ background: 'var(--brown-deep)' }} className="px-4 pt-10 pb-14">
-        <div className="max-w-lg mx-auto">
-          <div className="flex justify-between items-start">
+      <div style={{ background: C.brownDeep, padding: '40px 20px 56px' }}>
+        <div style={{ maxWidth: '520px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <h1 className="font-serif text-2xl font-bold" style={{ color: 'var(--cream)' }}>
-                EngCaffee
-              </h1>
-              <p className="text-xs tracking-widest uppercase mt-0.5" style={{ color: 'var(--brown-light)' }}>
-                Selamat datang
-              </p>
+              <h1 style={{ fontSize: '28px', fontWeight: '700', color: C.cream, fontFamily: 'Georgia, serif' }}>EngCaffee</h1>
+              <p style={{ fontSize: '10px', color: C.brownLight, letterSpacing: '2px', textTransform: 'uppercase', marginTop: '4px' }}>Selamat datang</p>
             </div>
-            <div className="text-xs font-semibold px-3 py-1.5 rounded-full border"
-              style={{ borderColor: 'var(--brown-light)', color: 'var(--brown-light)', background: 'rgba(196,168,130,0.1)' }}>
+            <div style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '20px', border: `1px solid ${C.brownLight}`, color: C.brownLight }}>
               Meja {tableId}
             </div>
           </div>
-          <div className="mt-4 rounded-2xl flex items-center gap-2 px-4 py-2.5 border"
-            style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(196,168,130,0.2)' }}>
-            <span style={{ color: 'var(--brown-light)' }}>🔍</span>
+          <div style={{ marginTop: '16px', background: 'rgba(255,255,255,0.08)', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', border: '0.5px solid rgba(196,168,130,0.2)' }}>
+            <span style={{ color: C.brownLight }}>🔍</span>
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Cari menu favoritmu..."
-              className="bg-transparent text-sm flex-1 outline-none"
-              style={{ color: 'var(--cream)', caretColor: 'var(--brown-light)' }} />
+              style={{ background: 'transparent', border: 'none', outline: 'none', color: C.cream, fontSize: '14px', flex: 1 }} />
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-4 -mt-6 relative z-10">
-        <div className="rounded-3xl overflow-hidden" style={{ background: 'var(--white)' }}>
+      <div style={{ maxWidth: '520px', margin: '-24px auto 0', padding: '0 16px', position: 'relative', zIndex: 10 }}>
+        <div style={{ background: C.white, borderRadius: '24px', overflow: 'hidden' }}>
 
           {/* Kategori */}
-          <div className="flex gap-2 px-4 pt-4 pb-3 overflow-x-auto"
-            style={{ borderBottom: '0.5px solid var(--cream2)' }}>
-            <button onClick={() => setActiveCategory(null)}
-              className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all"
-              style={!activeCategory
-                ? { background: 'var(--brown-dark)', color: 'var(--cream)' }
-                : { background: 'var(--cream)', color: 'var(--brown)', border: '0.5px solid var(--brown-light)' }}>
-              Semua
-            </button>
+          <div style={{ display: 'flex', gap: '8px', padding: '16px', overflowX: 'auto', borderBottom: `0.5px solid ${C.cream2}` }}>
+            <button onClick={() => setActiveCategory(null)} style={{
+              padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
+              whiteSpace: 'nowrap', border: 'none', cursor: 'pointer',
+              background: !activeCategory ? C.brownDark : C.cream,
+              color: !activeCategory ? C.cream : C.brown,
+            }}>Semua</button>
             {categories.map(cat => (
-              <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
-                className="px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all"
-                style={activeCategory === cat.id
-                  ? { background: 'var(--brown-dark)', color: 'var(--cream)' }
-                  : { background: 'var(--cream)', color: 'var(--brown)', border: '0.5px solid var(--brown-light)' }}>
-                {cat.name}
-              </button>
+              <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{
+                padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
+                whiteSpace: 'nowrap', cursor: 'pointer', border: `0.5px solid ${C.brownLight}`,
+                background: activeCategory === cat.id ? C.brownDark : C.cream,
+                color: activeCategory === cat.id ? C.cream : C.brown,
+              }}>{cat.name}</button>
             ))}
           </div>
 
           {/* Menu Grid */}
-          <div className="px-4 py-4">
+          <div style={{ padding: '16px' }}>
             {filteredMenus.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-3xl mb-2">☕</p>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Menu tidak ditemukan</p>
+              <div style={{ textAlign: 'center', padding: '48px 0', color: C.textMuted }}>
+                <p style={{ fontSize: '32px', marginBottom: '8px' }}>☕</p>
+                <p>Menu tidak ditemukan</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 {filteredMenus.map(menu => (
                   <MenuCard key={menu.id} menu={menu} onAddToCart={addToCart} />
                 ))}
@@ -159,24 +160,25 @@ export default function MenuPage() {
             )}
           </div>
         </div>
-        <div className="h-24" />
+        <div style={{ height: '96px' }} />
       </div>
 
       {/* Cart Bar */}
       {totalItems > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-20 p-4">
-          <div className="max-w-lg mx-auto">
-            <button onClick={() => setShowCart(true)}
-              className="w-full rounded-2xl py-4 px-5 flex items-center justify-between transition-all"
-              style={{ background: 'var(--brown-deep)', color: 'var(--cream)' }}>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
-                  style={{ background: 'var(--brown-light)', color: 'var(--brown-deep)' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px', zIndex: 20 }}>
+          <div style={{ maxWidth: '520px', margin: '0 auto' }}>
+            <button onClick={() => setShowCart(true)} style={{
+              width: '100%', background: C.brownDeep, color: C.cream, borderRadius: '16px',
+              padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '600'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ background: C.brownLight, color: C.brownDeep, fontSize: '11px', fontWeight: '700', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {totalItems}
                 </span>
-                <span className="font-semibold text-sm">Lihat Keranjang</span>
+                Lihat Keranjang
               </div>
-              <span className="font-bold">Rp {totalPrice.toLocaleString('id-ID')}</span>
+              <span style={{ fontWeight: '700' }}>Rp {totalPrice.toLocaleString('id-ID')}</span>
             </button>
           </div>
         </div>
