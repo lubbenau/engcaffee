@@ -2,6 +2,18 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export async function middleware(request) {
+  const { pathname } = request.nextUrl
+
+  // JALUR AMAN 1: Jika request menuju halaman login atau aset static, langsung loloskan tanpa cek session
+  if (
+    pathname === '/admin/login' ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.includes('.')
+  ) {
+    return NextResponse.next()
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -27,29 +39,19 @@ export async function middleware(request) {
     }
   )
 
-  // GANTI KE SINI: Menggunakan getSession agar ringan dan terhindar dari infinite loop loading
+  // Gunakan getSession agar proses pengecekan super cepat di sisi Edge Server
   const { data: { session } } = await supabase.auth.getSession()
   const hasUser = !!session?.user
 
-  const isAdminPage = request.nextUrl.pathname.startsWith('/admin')
-  const isLoginPage = request.nextUrl.pathname === '/admin/login'
-
-  // KONDISI 1: Mau masuk halaman admin, tapi BELUM login -> Lempar ke login
-  if (isAdminPage && !isLoginPage && !hasUser) {
+  // KONDISI: Ingin masuk rute /admin (dashboard dll) tapi belum login -> Tendang ke login
+  if (pathname.startsWith('/admin') && !hasUser) {
     return NextResponse.redirect(new URL('/admin/login', request.url))
-  }
-
-  // KONDISI 2: SUDAH login, tapi mau buka halaman login lagi -> Kembalikan ke dashboard
-  if (isLoginPage && hasUser) {
-    return NextResponse.redirect(new URL('/admin', request.url))
   }
 
   return response
 }
 
 export const config = {
-  // Ditambahkan pengecualian agar satpam tidak memeriksa file internal Next.js (_next) dan static images
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  // Satpam hanya memantau area admin saja agar tidak memberatkan rute pembeli/customer
+  matcher: ['/admin', '/admin/:path*']
 }
