@@ -1,49 +1,49 @@
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-export async function middleware(req) {
-  const res = NextResponse.next()
-
-  // Ambil data env secara dinamis
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  // Buat client Supabase standar yang aman untuk Edge Runtime
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      persistSession: false, // Penting di middleware agar tidak menyimpan cache state antar request user lain
+export async function middleware(request) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
     },
   })
 
-  // Next.js menyimpan session token Supabase di cookies dengan pola nama ini
-  // Cari cookie yang mengandung nama proyek Supabase kamu
-  const cookieName = Object.keys(req.cookies.all()).find(name => name.includes('-auth-token'))
-  const tokenJson = req.cookies.get(cookieName)?.value
-
-  let session = null
-  if (tokenJson) {
-    try {
-      const parsed = JSON.parse(tokenJson)
-      session = parsed?.access_token || null
-    } catch (e) {
-      session = null
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          response = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+        },
+      },
     }
+  )
+
+  // Ambil data user/session yang valid secara aman
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const isAdminPage = request.nextUrl.pathname.startsWith('/admin')
+  const isLoginPage = request.nextUrl.pathname === '/admin/login'
+
+  // Jika belum login dan mencoba masuk halaman admin (selain /admin/login)
+  if (isAdminPage && !isLoginPage && !user) {
+    return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
-  const isAdminPage = req.nextUrl.pathname.startsWith('/admin')
-  const isLoginPage = req.nextUrl.pathname === '/admin/login'
-
-  // Jika mencoba masuk area admin, tidak login, dan bukan di halaman login -> Tendang ke Login
-  if (isAdminPage && !isLoginPage && !session) {
-    return NextResponse.redirect(new URL('/admin/login', req.url))
+  // Jika sudah login tapi malah buka halaman login lagi
+  if (isLoginPage && user) {
+    return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-  // Jika sudah login tapi iseng buka halaman login -> Balikin ke Dashboard
-  if (isLoginPage && session) {
-    return NextResponse.redirect(new URL('/admin', req.url))
-  }
-
-  return res
+  return response
 }
 
 export const config = {
