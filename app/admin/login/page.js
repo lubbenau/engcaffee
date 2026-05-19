@@ -1,120 +1,50 @@
 'use client'
-import { useState } from 'react'
+
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from '@/lib/auth'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-export default function LoginPage() {
+export default function AdminDashboard() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const supabase = createClientComponentClient()
+  const [isAllowed, setIsAllowed] = useState(false)
 
-  async function handleLogin(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    const { data, error } = await signIn(email, password)
-
-    if (error) {
-      setError('Email atau password salah. Coba lagi.')
-      setLoading(false)
-      return
+  useEffect(() => {
+    const checkUser = async () => {
+      // Ambil session login yang aktif di browser
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Jika tidak ada session (belum login), langsung tendang balik ke form login
+      if (!session) {
+        router.replace('/admin/login')
+      } else {
+        // Jika ada, izinkan halaman dashboard dirender
+        setIsAllowed(true)
+      }
     }
 
-    router.push('/admin')
+    checkUser()
+  }, [router, supabase])
+
+  // Selama mengecek session, tampilkan loading modern (animasi pulse ala cyberpunk/glassmorphism)
+  if (!isAllowed) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-950 text-emerald-400">
+        <div className="text-center p-8 backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl shadow-2xl">
+          <p className="text-xl font-bold tracking-wider animate-pulse">MEMERIKSA HAK AKSES ADMIN...</p>
+        </div>
+      </div>
+    )
   }
 
+  // JIKA SUDAH LOGIN, TAMPILKAN UI DASHBOARD MODERN KAMU DI SINI
   return (
-    <div style={{ minHeight: '100vh', background: '#F4FAF8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ width: '100%', maxWidth: '380px' }}>
-
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ width: '64px', height: '64px', background: '#4DB89E', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '28px' }}>
-            🍽️
-          </div>
-          <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A' }}>EngCaffee</h1>
-          <p style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>Login untuk akses dashboard admin</p>
-        </div>
-
-        {/* Form */}
-        <div style={{ background: '#fff', borderRadius: '24px', padding: '28px', border: '0.5px solid #F0F0F0' }}>
-          <form onSubmit={handleLogin}>
-
-            {/* Email */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', display: 'block', marginBottom: '8px' }}>
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="admin@engcaffee.com"
-                required
-                style={{
-                  width: '100%', padding: '12px 16px', borderRadius: '12px',
-                  border: '1.5px solid #E8E8E8', fontSize: '14px', color: '#1A1A1A',
-                  outline: 'none', background: '#FAFAFA'
-                }}
-              />
-            </div>
-
-            {/* Password */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', display: 'block', marginBottom: '8px' }}>
-                Password
-              </label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="Masukkan password"
-                  required
-                  style={{
-                    width: '100%', padding: '12px 48px 12px 16px', borderRadius: '12px',
-                    border: '1.5px solid #E8E8E8', fontSize: '14px', color: '#1A1A1A',
-                    outline: 'none', background: '#FAFAFA'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#BBB' }}>
-                  {showPassword ? '🙈' : '👁️'}
-                </button>
-              </div>
-            </div>
-
-            {/* Error */}
-            {error && (
-              <div style={{ background: '#FFF0F0', border: '0.5px solid #FFB3B3', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
-                <p style={{ fontSize: '13px', color: '#CC3333', fontWeight: '600' }}>⚠️ {error}</p>
-              </div>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%', background: loading ? '#B2DDD4' : '#4DB89E', color: '#fff',
-                padding: '14px', borderRadius: '14px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-                fontWeight: '700', fontSize: '15px'
-              }}>
-              {loading ? 'Masuk...' : 'Masuk ke Dashboard'}
-            </button>
-          </form>
-        </div>
-
-        <p style={{ textAlign: 'center', fontSize: '12px', color: '#BBB', marginTop: '20px' }}>
-          EngCaffee Admin Panel · Protected
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-950 p-6 text-white">
+      {/* Taruh seluruh kode tampilan menu/dashboard asli kamu di bawah ini */}
+      <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+        Dashboard Admin - Engcaffee
+      </h1>
+      <p className="mt-2 text-slate-400">Selamat datang kembali! Sistem siap digunakan untuk mengelola data.</p>
     </div>
   )
 }
