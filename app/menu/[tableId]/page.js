@@ -7,18 +7,6 @@ import CartDrawer from '@/components/CartDrawer'
 import OrderSuccess from '@/components/OrderSuccess'
 import toast, { Toaster } from 'react-hot-toast'
 
-const C = {
-  cream: '#F5F0E8',
-  cream2: '#EDE5D8',
-  brownLight: '#C4A882',
-  brown: '#8B6347',
-  brownDark: '#5C3D2E',
-  brownDeep: '#3B2314',
-  text: '#2C1A0E',
-  textMuted: '#8B7355',
-  white: '#FDFAF6',
-}
-
 export default function MenuPage() {
   const { tableId } = useParams()
   const [categories, setCategories] = useState([])
@@ -51,7 +39,7 @@ export default function MenuPage() {
       return [...prev, { ...item, cartKey: key }]
     })
     toast.success(`${item.name} ditambahkan!`, {
-      style: { borderRadius: '12px', background: C.brownDeep, color: C.cream, fontSize: '13px' }
+      style: { borderRadius: '12px', background: '#1A1A1A', color: '#fff', fontSize: '13px' }
     })
   }
 
@@ -89,99 +77,113 @@ export default function MenuPage() {
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ fontSize: '40px', marginBottom: '12px' }}>☕</div>
-      <p style={{ color: C.brown, fontWeight: '600' }}>Menyeduh menu...</p>
+    <div style={{ minHeight: '100vh', background: '#F4FAF8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ fontSize: '40px', marginBottom: '12px' }}>🍽️</div>
+      <p style={{ color: '#4DB89E', fontWeight: '600' }}>Memuat menu...</p>
     </div>
   )
 
   if (orderSuccess) return <OrderSuccess orderId={orderId} tableId={tableId} />
 
-  // Ubah bagian "Hero" dan "Menu Grid" di page.js
-// ... (logika useEffect dll tetap sama)
-
   return (
-    <div className="min-h-screen pb-24">
+    <div style={{ minHeight: '100vh', background: '#F4FAF8', paddingBottom: '80px' }}>
       <Toaster position="top-center" />
 
-      {/* Hero Section Modern */}
-      <div className="relative overflow-hidden bg-[#3B2314] px-6 pt-12 pb-20 rounded-b-[3rem] shadow-2xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4A373] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-        <div className="relative z-10 max-w-2xl mx-auto">
-          <span className="text-[#C4A882] text-[10px] tracking-[0.3em] uppercase font-bold">Premium Experience</span>
-          <h1 className="text-4xl font-serif font-bold text-[#F5F0E8] mt-1">EngCaffee</h1>
-          <div className="flex items-center gap-2 mt-4">
-             <div className="px-3 py-1 rounded-full border border-[#C4A882]/30 text-[#C4A882] text-[10px] font-bold">
-               Table {tableId}
-             </div>
+      {/* Header */}
+      <div style={{ background: '#fff', padding: '16px 16px 0', position: 'sticky', top: 0, zIndex: 10, borderBottom: '0.5px solid #F0F0F0' }}>
+        <div style={{ maxWidth: '480px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A' }}>Menu</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '12px', color: '#4DB89E', background: '#E8F7F3', padding: '4px 10px', borderRadius: '20px', fontWeight: '600' }}>
+                Meja {tableId}
+              </span>
+              <button onClick={() => setShowCart(true)} style={{
+                width: '40px', height: '40px', background: '#4DB89E', borderRadius: '12px',
+                border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'
+              }}>
+                <span style={{ fontSize: '18px' }}>🛒</span>
+                {totalItems > 0 && (
+                  <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#FF6B6B', color: '#fff', fontSize: '10px', fontWeight: '700', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Search Bar Glass */}
-          <div className="mt-8 glass-dark rounded-[1.5rem] flex items-center px-4 py-3">
-            <span className="text-[#C4A882]">🔍</span>
-            <input 
-              type="text" value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="What are you craving today?"
-              className="bg-transparent border-none outline-none text-white text-sm ml-3 w-full placeholder:text-[#8B7355]"
-            />
+          {/* Search */}
+          <div style={{ background: '#F5F5F5', borderRadius: '12px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '16px', color: '#BBB' }}>🔍</span>
+            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Cari menu..."
+              style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#1A1A1A', flex: 1 }} />
+          </div>
+
+          {/* Kategori */}
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px' }}>
+            <button onClick={() => setActiveCategory(null)} style={{
+              padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+              whiteSpace: 'nowrap', border: 'none', cursor: 'pointer',
+              background: !activeCategory ? '#4DB89E' : '#F5F5F5',
+              color: !activeCategory ? '#fff' : '#888',
+            }}>Semua</button>
+            {categories.map(cat => (
+              <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{
+                padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
+                whiteSpace: 'nowrap', border: 'none', cursor: 'pointer',
+                background: activeCategory === cat.id ? '#4DB89E' : '#F5F5F5',
+                color: activeCategory === cat.id ? '#fff' : '#888',
+              }}>{cat.name}</button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="max-w-4xl mx-auto -mt-10 px-4">
-        {/* Kategori Floating */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar py-4">
-          <button 
-            onClick={() => setActiveCategory(null)}
-            className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm
-              ${!activeCategory ? 'bg-[#5C3D2E] text-white' : 'glass text-[#8B6347]'}`}
-          >
-            All Menu
-          </button>
-          {categories.map(cat => (
-            <button 
-              key={cat.id} 
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm whitespace-nowrap
-                ${activeCategory === cat.id ? 'bg-[#5C3D2E] text-white' : 'glass text-[#8B6347]'}`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Menu Grid - BENTO STYLE */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-          {filteredMenus.map(menu => (
-            <MenuCard key={menu.id} menu={menu} onAddToCart={addToCart} />
-          ))}
-        </div>
+      {/* Menu Grid */}
+      <div style={{ maxWidth: '480px', margin: '0 auto', padding: '16px' }}>
+        {filteredMenus.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: '#BBB' }}>
+            <div style={{ fontSize: '40px', marginBottom: '8px' }}>🍽️</div>
+            <p>Menu tidak ditemukan</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {filteredMenus.map(menu => (
+              <MenuCard key={menu.id} menu={menu} onAddToCart={addToCart} />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Floating Cart Bar */}
+      {/* Bottom Cart Bar */}
       {totalItems > 0 && (
-        <div className="fixed bottom-6 left-0 right-0 px-6 z-[100]">
-          <button 
-            onClick={() => setShowCart(true)}
-            className="max-w-md mx-auto w-full glass-dark text-white rounded-[2rem] p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(59,35,20,0.3)] animate-bounce-in"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#C4A882] flex items-center justify-center font-black text-[#3B2314]">
-                {totalItems}
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 16px', background: '#fff', borderTop: '0.5px solid #F0F0F0', zIndex: 20 }}>
+          <div style={{ maxWidth: '480px', margin: '0 auto' }}>
+            <button onClick={() => setShowCart(true)} style={{
+              width: '100%', background: '#4DB89E', color: '#fff',
+              padding: '14px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ background: 'rgba(255,255,255,0.3)', borderRadius: '50%', width: '26px', height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700' }}>
+                  {totalItems}
+                </span>
+                Lihat Keranjang
               </div>
-              <div className="text-left">
-                <p className="text-[10px] text-[#C4A882] uppercase font-bold">Total Order</p>
-                <p className="text-sm font-bold">Rp {totalPrice.toLocaleString('id-ID')}</p>
-              </div>
-            </div>
-            <div className="pr-4 font-bold text-xs flex items-center gap-2">
-              VIEW CART <span>→</span>
-            </div>
-          </button>
+              <span>Rp {totalPrice.toLocaleString('id-ID')}</span>
+            </button>
+          </div>
         </div>
       )}
-      {/* ... sisanya (CartDrawer) tetap sama */}
+
+      {showCart && (
+        <CartDrawer cart={cart} tableId={tableId}
+          onClose={() => setShowCart(false)}
+          onRemove={removeFromCart}
+          onUpdateQty={updateQuantity}
+          onSubmit={submitOrder} />
+      )}
     </div>
   )
 }

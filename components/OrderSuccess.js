@@ -16,52 +16,44 @@ export default function OrderSuccess({ orderId, tableId }) {
   }, [orderId])
 
   const states = {
-    pending: { icon: '⏳', title: 'Pesanan Terkirim!', sub: 'Menunggu konfirmasi dari kasir...', badge: 'Menunggu' },
-    confirmed: { icon: '👨‍🍳', title: 'Pesanan Dikonfirmasi!', sub: 'Pesanan sedang diproses di dapur.', badge: 'Diproses' },
-    done: { icon: '☕', title: 'Pesanan Siap!', sub: 'Silakan ambil pesananmu. Selamat menikmati!', badge: 'Selesai' }
+    pending: { icon: '⏳', title: 'Pesanan Terkirim!', sub: 'Menunggu konfirmasi dari kasir...', color: '#F5A623', bg: '#FFF8ED' },
+    confirmed: { icon: '👨‍🍳', title: 'Pesanan Dikonfirmasi!', sub: 'Pesanan sedang diproses di dapur.', color: '#4DB89E', bg: '#E8F7F3' },
+    done: { icon: '🎉', title: 'Pesanan Siap!', sub: 'Silakan ambil pesananmu. Selamat menikmati!', color: '#4D8EDB', bg: '#EBF3FD' }
   }
   const s = states[status] || states.pending
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'var(--cream)' }}>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6">
-          <div className="text-6xl mb-4">{s.icon}</div>
-          <h2 className="font-serif text-2xl font-bold" style={{ color: 'var(--brown-deep)' }}>{s.title}</h2>
-          <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{s.sub}</p>
+    <div style={{ minHeight: '100vh', background: '#F4FAF8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ width: '100%', maxWidth: '360px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ width: '80px', height: '80px', background: s.bg, borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto 16px' }}>
+            {s.icon}
+          </div>
+          <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A' }}>{s.title}</h2>
+          <p style={{ fontSize: '14px', color: '#888', marginTop: '6px' }}>{s.sub}</p>
         </div>
 
-        <div className="rounded-3xl p-5 border" style={{ background: 'var(--white)', borderColor: 'var(--cream2)' }}>
-          <div className="text-center mb-4">
-            <span className="text-xs font-bold px-3 py-1 rounded-full"
-              style={{ background: 'var(--cream2)', color: 'var(--brown)' }}>
-              {s.badge}
-            </span>
-          </div>
-          <div className="space-y-2.5 rounded-2xl p-4" style={{ background: 'var(--cream)' }}>
-            {[
-              { label: 'Restoran', value: 'EngCaffee' },
-              { label: 'Nomor Meja', value: `Meja ${tableId}` },
-              { label: 'Order ID', value: `#${orderId}` },
-              { label: 'Status', value: s.badge },
-            ].map(row => (
-              <div key={row.label} className="flex justify-between items-center">
-                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{row.label}</span>
-                <span className="text-xs font-bold" style={{ color: 'var(--text)' }}>{row.value}</span>
-              </div>
+        <div style={{ background: '#fff', borderRadius: '20px', padding: '20px', border: '0.5px solid #F0F0F0' }}>
+          {[
+            { label: 'Restoran', value: 'EngCaffee' },
+            { label: 'Nomor Meja', value: `Meja ${tableId}` },
+            { label: 'Order ID', value: `#${orderId}` },
+            { label: 'Status', value: status === 'pending' ? 'Menunggu' : status === 'confirmed' ? 'Diproses' : 'Selesai' },
+          ].map((row, i, arr) => (
+            <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < arr.length - 1 ? '0.5px solid #F5F5F5' : 'none' }}>
+              <span style={{ fontSize: '13px', color: '#888' }}>{row.label}</span>
+              <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A' }}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {status === 'pending' && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '20px' }}>
+            {[0, 150, 300].map(d => (
+              <div key={d} style={{ width: '8px', height: '8px', background: '#4DB89E', borderRadius: '50', animation: 'bounce 1s infinite', animationDelay: `${d}ms` }} />
             ))}
           </div>
-
-          {status === 'pending' && (
-            <div className="flex items-center justify-center gap-2 mt-4">
-              {[0, 150, 300].map(delay => (
-                <div key={delay} className="w-2 h-2 rounded-full animate-bounce"
-                  style={{ background: 'var(--brown)', animationDelay: `${delay}ms` }} />
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   )
